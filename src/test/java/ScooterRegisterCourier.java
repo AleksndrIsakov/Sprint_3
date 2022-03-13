@@ -15,7 +15,7 @@ public class ScooterRegisterCourier {
     возвращает список из логина и пароля
     если регистрация не удалась, возвращает пустой список
     */
-    public ArrayList<String> registerNewCourierAndReturnLoginPassword(){
+    public static ArrayList<String> registerNewCourierAndReturnLoginPassword(){
 
         // с помощью библиотеки RandomStringUtils генерируем логин
         // метод randomAlphabetic генерирует строку, состоящую только из букв, в качестве параметра передаём длину строки
