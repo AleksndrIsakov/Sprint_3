@@ -1,16 +1,20 @@
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 
+
+// Создание курьера
 public class RegisterCourierTests {
 
     private String courierLogin;
     private String courierPassword;
     private String courierFirstName;
+    private final String apiUrl = "/api/v1/courier";
 
     @Before
     public void setUp() {
@@ -23,26 +27,27 @@ public class RegisterCourierTests {
         this.courierFirstName = RandomStringUtils.randomAlphabetic(10);
     }
 
+    @After
+    public void tearDown(){
+        try {
+            int courierId = ScooterLoginCourier.getId(courierLogin, courierPassword);
+            RequestsTemplates.deleteRequest("/api/v1/courier/" + courierId, "{}");
+        } catch (NullPointerException e) {
+            System.out.println("Пользователь не найден - удалять нечего");
+        }
+    }
+
     private String courierRegisterJsonBody(String courierLogin, String courierPassword, String courierFirstName) {
         return "{\"login\":\"" + courierLogin + "\","
                 + "\"password\":\"" + courierPassword + "\","
                 + "\"firstName\":\"" + courierFirstName + "\"}";
     }
-
-    private Response createRequest(String jsonBody) {
-        return given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(jsonBody)
-                .when()
-                .post("/api/v1/courier");
-    }
-
+    
     @Test
     @DisplayName("Проверка создания курьера")
     public void createCourier() {
         String jsonBody = courierRegisterJsonBody(this.courierLogin, this.courierPassword, this.courierFirstName);
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl, jsonBody)
                 .then().statusCode(201)
                 .and()
                 .body("ok", equalTo(true));
@@ -52,9 +57,9 @@ public class RegisterCourierTests {
     @DisplayName("Проверка запрета на создание повторной записи")
     public void createDuplicateCourier() {
         String jsonBody = courierRegisterJsonBody(this.courierLogin, this.courierPassword, this.courierFirstName);
-        createRequest(jsonBody).then().statusCode(201);
+        RequestsTemplates.postRequest(apiUrl,jsonBody).then().statusCode(201);
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(409)
                 .and()
                 .body("message", equalTo("Этот логин уже используется"));
@@ -65,7 +70,7 @@ public class RegisterCourierTests {
     public void createCourierWithEmptyLogin() {
         String jsonBody = courierRegisterJsonBody("", this.courierPassword, this.courierFirstName);
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
@@ -76,7 +81,7 @@ public class RegisterCourierTests {
     public void createCourierWithEmptyPassword() {
         String jsonBody = courierRegisterJsonBody(this.courierLogin, "", this.courierFirstName);
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
@@ -87,7 +92,7 @@ public class RegisterCourierTests {
     public void createCourierWithEmptyFirstName() {
         String jsonBody = courierRegisterJsonBody(this.courierLogin, this.courierPassword, "");
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
@@ -99,7 +104,7 @@ public class RegisterCourierTests {
         String jsonBody = "{\"password\":\"" + courierPassword + "\","
                         + "\"firstName\":\"" + courierFirstName + "\"}";
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
@@ -111,7 +116,7 @@ public class RegisterCourierTests {
         String jsonBody = "{\"login\":\"" + courierLogin + "\","
                          + "\"firstName\":\"" + courierFirstName + "\"}";
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));
@@ -123,7 +128,7 @@ public class RegisterCourierTests {
         String jsonBody = "{\"login\":\"" + courierLogin + "\","
                         + "\"password\":\"" + courierPassword + "\"}";
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для создания учетной записи"));

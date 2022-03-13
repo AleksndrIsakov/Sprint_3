@@ -1,6 +1,5 @@
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.response.Response;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,116 +10,108 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.isA;
 
 
+// Логин курьера
 public class LoginCourierTests {
+
+    private ArrayList<String> courier;
+    private final String apiUrl = "/api/v1/courier/login";
 
     @Before
     public void setUp() {
         baseURI = "http://qa-scooter.praktikum-services.ru";
+        courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
     }
 
-    private Response createRequest(String jsonBody) {
-        return given()
-                .header("Content-type", "application/json")
-                .and()
-                .body(jsonBody)
-                .when()
-                .post("/api/v1/courier/login");
+    @After
+    public void tearDown(){
+        try {
+            int courierId = ScooterLoginCourier.getId(courier.get(0), courier.get(1));
+            RequestsTemplates.deleteRequest("/api/v1/courier/" + courierId, "{}");
+        } catch (NullPointerException e) {
+            System.out.println("Пользователь не найден - удалять нечего");
+        }
     }
 
     @Test
     @DisplayName("Проверка авторизации курьера в системе")
     public void checkCourierCanLogin(){
-        ArrayList<String> courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
         String jsonBody = "{\"login\":\"" + courier.get(0) + "\","
                         + "\"password\":\"" + courier.get(1) + "\"}";
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(200)
                 .and()
                 .body("id", isA(int.class));
-
     }
 
     @Test
     // Данный тест проверяет так же условие "если авторизоваться под несуществующим пользователем, запрос возвращает ошибку;"
     @DisplayName("Проверка авторизации курьера в системе c некорректным логином")
     public void checkCourierCantLoginWithIncorrectLogin(){
-        ArrayList<String> courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
         String jsonBody = "{\"login\":\"" + courier.get(1) + "\","
                 + "\"password\":\"" + courier.get(1) + "\"}";
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(404)
                 .and()
                 .body("message", equalTo("Учетная запись не найдена"));
-
     }
 
     @Test
     @DisplayName("Проверка авторизации курьера в системе c некорректным паролем")
     public void checkCourierCantLoginWithIncorrectPassword(){
-        ArrayList<String> courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
         String jsonBody = "{\"login\":\"" + courier.get(0) + "\","
                 + "\"password\":\"" + courier.get(0) + "\"}";
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(404)
                 .and()
                 .body("message", equalTo("Учетная запись не найдена"));
-
     }
 
     @Test
     @DisplayName("Проверка авторизации курьера с пустым логином")
     public void checkCourierCantLoginWithEmptyLogin(){
-        ArrayList<String> courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
         String jsonBody = "{\"login\":\"" + "" + "\","
                 + "\"password\":\"" + courier.get(1) + "\"}";
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для входа"));
-
     }
 
     @Test
     @DisplayName("Проверка авторизации курьера с пустым паролем")
     public void checkCourierCantLoginWithEmptyPassword(){
-        ArrayList<String> courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
         String jsonBody = "{\"login\":\"" + courier.get(0) + "\","
                 + "\"password\":\"" + "" + "\"}";
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для входа"));
-
     }
 
     @Test
     @DisplayName("Проверка авторизации курьера без логина")
     public void checkCourierCantLoginWithoutLoginField(){
-        ArrayList<String> courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
         String jsonBody = "{\"password\":\"" + courier.get(1) + "\"}";
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для входа"));
-
     }
 
     @Test
     @DisplayName("Проверка авторизации курьера без пароля")
     public void checkCourierCantLoginWithoutPasswordField(){
-        ArrayList<String> courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
         String jsonBody = "{\"login\":\"" + courier.get(0) + "\"}";
 
-        createRequest(jsonBody)
+        RequestsTemplates.postRequest(apiUrl,jsonBody)
                 .then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для входа"));
-
     }
 }
