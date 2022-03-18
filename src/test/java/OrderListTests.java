@@ -1,3 +1,5 @@
+import io.qameta.allure.Epic;
+import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.Before;
@@ -9,6 +11,8 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 // Список заказов
+@Epic("Основное задание")
+@Story("4. Список заказов")
 public class OrderListTests {
 
     private ArrayList<String> courier;

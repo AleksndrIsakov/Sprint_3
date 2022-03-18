@@ -1,3 +1,5 @@
+import io.qameta.allure.Epic;
+import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Before;
@@ -8,21 +10,30 @@ import java.util.ArrayList;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.isA;
+import java.util.ArrayList;
+
+import static io.restassured.RestAssured.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.isA;
 
 
-// Логин курьера
+// Тесты на логин курьера
+@Epic("Основное задание")
+@Story("2. Логин курьера")
 public class LoginCourierTests {
 
     private ArrayList<String> courier;
     private final String apiUrl = "/api/v1/courier/login";
 
     @Before
+    // Подготовим данные для тестов
     public void setUp() {
         baseURI = "http://qa-scooter.praktikum-services.ru";
         courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
     }
 
     @After
+    // Удалим созданные данные
     public void tearDown(){
         try {
             int courierId = ScooterLoginCourier.getId(courier.get(0), courier.get(1));

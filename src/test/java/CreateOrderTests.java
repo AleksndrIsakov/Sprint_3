@@ -1,3 +1,6 @@
+import io.qameta.allure.Epic;
+import io.qameta.allure.Severity;
+import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,6 +11,8 @@ import static io.restassured.RestAssured.baseURI;
 import static org.hamcrest.Matchers.isA;
 
 // Создание заказа
+@Epic("Основное задание")
+@Story("3. Создание заказа")
 @RunWith(Parameterized.class)
 public class CreateOrderTests {
 

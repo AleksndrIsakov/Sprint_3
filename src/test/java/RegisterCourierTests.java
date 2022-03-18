@@ -1,3 +1,5 @@
+import io.qameta.allure.Epic;
+import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -8,7 +10,9 @@ import static io.restassured.RestAssured.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 
-// Создание курьера
+// Тесты на создание курьера
+@Epic("Основное задание")
+@Story("1. Создание курьера")
 public class RegisterCourierTests {
 
     private String courierLogin;
@@ -17,6 +21,7 @@ public class RegisterCourierTests {
     private final String apiUrl = "/api/v1/courier";
 
     @Before
+    // Подготовим данные для создания курьера
     public void setUp() {
         baseURI = "http://qa-scooter.praktikum-services.ru";
         // метод randomAlphabetic генерирует строку, состоящую только из букв, в качестве параметра передаём длину строки
@@ -28,6 +33,7 @@ public class RegisterCourierTests {
     }
 
     @After
+    // Удалим созданные данные
     public void tearDown(){
         try {
             int courierId = ScooterLoginCourier.getId(courierLogin, courierPassword);
@@ -37,6 +43,7 @@ public class RegisterCourierTests {
         }
     }
 
+    // Шаблон тела JSON
     private String courierRegisterJsonBody(String courierLogin, String courierPassword, String courierFirstName) {
         return "{\"login\":\"" + courierLogin + "\","
                 + "\"password\":\"" + courierPassword + "\","

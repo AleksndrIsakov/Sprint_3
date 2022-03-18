@@ -4,11 +4,9 @@ import static io.restassured.RestAssured.given;
 
 public class RequestsTemplates {
 
-    public Response getRequest(String apiUrl, String jsonBody) {
+    public static Response getRequest(String apiUrl) {
         return given()
                 .header("Content-type", "application/json")
-                .and()
-                .body(jsonBody)
                 .when()
                 .get(apiUrl);
     }
@@ -22,7 +20,7 @@ public class RequestsTemplates {
                 .post(apiUrl);
     }
 
-    public Response putRequest(String apiUrl, String jsonBody) {
+    public static Response putRequest(String apiUrl, String jsonBody) {
         return given()
                 .header("Content-type", "application/json")
                 .and()
