@@ -21,9 +21,9 @@ public class DeleteCourierTests {
     // Подготовим данные для тестов
     public void setUp() {
         baseURI = "http://qa-scooter.praktikum-services.ru";
-        ArrayList<String> courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
+        ArrayList<String> courier = ScooterCourier.registerNewCourierAndReturnLoginPassword();
         try {
-            courierId = ScooterLoginCourier.getId(courier.get(0), courier.get(1));
+            courierId = ScooterCourier.getId(courier.get(0), courier.get(1));
         } catch (NullPointerException e) {
             courierId = 0;
         }
@@ -31,15 +31,15 @@ public class DeleteCourierTests {
 
     @After
     // Удалим созданные данные
-    public void tearDown(){
+    public void tearDown() {
         if (courierId != 0)
-            RequestsTemplates.deleteRequest("/api/v1/courier/" + courierId, "{}");
+            RequestsTemplates.deleteRequest("/api/v1/courier/" + courierId);
     }
 
     @Test
     @DisplayName("Успешное удаление курьера")
     public void deleteCourier() {
-        Response response = RequestsTemplates.deleteRequest("/api/v1/courier/" + courierId, "{}");
+        Response response = RequestsTemplates.deleteRequest("/api/v1/courier/" + courierId);
         response.then().statusCode(200)
                 .and()
                 .body("ok", equalTo(true));
@@ -48,7 +48,7 @@ public class DeleteCourierTests {
     @Test
     @DisplayName("Запрос без id возвращает ошибку")
     public void deleteCourierWithoutId() {
-        Response response = RequestsTemplates.deleteRequest("/api/v1/courier", "{}");
+        Response response = RequestsTemplates.deleteRequest("/api/v1/courier");
         response.then().statusCode(400)
                 .and()
                 .body("message", equalTo("Недостаточно данных для удаления курьера"));
@@ -57,7 +57,7 @@ public class DeleteCourierTests {
     @Test
     @DisplayName("Запрос с несуществующим id возвращает ошибку")
     public void deleteCourierWithNotExistId() {
-        Response response = RequestsTemplates.deleteRequest("/api/v1/courier/-1", "{}");
+        Response response = RequestsTemplates.deleteRequest("/api/v1/courier/-1");
         response.then().statusCode(404)
                 .and()
                 .body("message", equalTo("Курьера с таким id нет"));

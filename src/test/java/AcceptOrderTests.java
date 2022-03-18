@@ -1,10 +1,8 @@
 import io.qameta.allure.Epic;
 import io.qameta.allure.Story;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -25,33 +23,31 @@ public class AcceptOrderTests {
     // Подготовим данные для тестов
     public void setUp() {
         baseURI = "http://qa-scooter.praktikum-services.ru";
-        ArrayList<String> courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
+        ArrayList<String> courier = ScooterCourier.registerNewCourierAndReturnLoginPassword();
         try {
-            courierId = ScooterLoginCourier.getId(courier.get(0), courier.get(1));
+            courierId = ScooterCourier.getId(courier.get(0), courier.get(1));
         } catch (NullPointerException e) {
             courierId = 0;
         }
 
-        String jsonBody = "{\n" +
-                "    \"firstName\": \"MyOrder\",\n" +
-                "    \"lastName\": \"Uchiha\",\n" +
-                "    \"address\": \"Konoha, 142 apt.\",\n" +
-                "    \"metroStation\": 4,\n" +
-                "    \"phone\": \"+7 800 355 35 35\",\n" +
-                "    \"rentTime\": 5,\n" +
-                "    \"deliveryDate\": \"2020-06-06\",\n" +
-                "    \"comment\": \"Saske, come back to Konoha\",\n" +
-                "    \"color\": [\n" +
-                "        \"BLACK\"\n" +
-                "    ]\n" +
-                "}";
+        ScooterOrder order = new ScooterOrder();
 
-        track = RequestsTemplates.postRequest("/api/v1/orders", jsonBody)
+        track = RequestsTemplates.postRequest("/api/v1/orders", order.getJsonOrderBody())
                 .getBody().jsonPath().get("track");
 
         id = RequestsTemplates.getRequest("/api/v1/orders/track?t=" + track)
                 .getBody().jsonPath().get("order.id");
 
+    }
+
+    @After
+    // Удалим созданные данные
+    public void tearDown() {
+        // отменим созданный заказ
+        RequestsTemplates.putRequest("/api/v1/orders/cancel", "{\"track\":" + track + "}");
+        // удалим пользователя
+        if (courierId != 0)
+            RequestsTemplates.deleteRequest("/api/v1/courier/" + courierId);
     }
 
     @Test
@@ -97,14 +93,5 @@ public class AcceptOrderTests {
                 .and().body("message", equalTo("Недостаточно данных для поиска"));
     }
 
-    @After
-    // Удалим созданные данные
-    public void tearDown(){
-        // отменим созданный заказ
-        RequestsTemplates.putRequest("/api/v1/orders/cancel", "{\"track\":" + track + "}");
-        // удалим пользователя
-        if (courierId != 0)
-            RequestsTemplates.deleteRequest("/api/v1/courier/" + courierId, "{}");
-    }
 
 }

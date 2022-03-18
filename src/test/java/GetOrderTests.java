@@ -4,12 +4,13 @@ import io.qameta.allure.junit4.DisplayName;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import pojo.JSONOrder;
 
 import java.util.ArrayList;
 
 import static io.restassured.RestAssured.baseURI;
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertNotNull;
 
 @Epic("Дополнительное задание")
 @Story("3. Получить заказ по его номеру")
@@ -22,39 +23,36 @@ public class GetOrderTests {
     // Подготовим данные для тестов
     public void setUp() {
         baseURI = "http://qa-scooter.praktikum-services.ru";
-        ArrayList<String> courier = ScooterRegisterCourier.registerNewCourierAndReturnLoginPassword();
+        ArrayList<String> courier = ScooterCourier.registerNewCourierAndReturnLoginPassword();
         try {
-            courierId = ScooterLoginCourier.getId(courier.get(0), courier.get(1));
+            courierId = ScooterCourier.getId(courier.get(0), courier.get(1));
         } catch (NullPointerException e) {
             courierId = 0;
         }
 
-        String jsonBody = "{\n" +
-                "    \"firstName\": \"MyOrder\",\n" +
-                "    \"lastName\": \"Uchiha\",\n" +
-                "    \"address\": \"Konoha, 142 apt.\",\n" +
-                "    \"metroStation\": 4,\n" +
-                "    \"phone\": \"+7 800 355 35 35\",\n" +
-                "    \"rentTime\": 5,\n" +
-                "    \"deliveryDate\": \"2020-06-06\",\n" +
-                "    \"comment\": \"Saske, come back to Konoha\",\n" +
-                "    \"color\": [\n" +
-                "        \"BLACK\"\n" +
-                "    ]\n" +
-                "}";
-
-        track = RequestsTemplates.postRequest("/api/v1/orders", jsonBody)
+        ScooterOrder order = new ScooterOrder();
+        track = RequestsTemplates.postRequest("/api/v1/orders", order.getJsonOrderBody())
                 .getBody().jsonPath().get("track");
 
     }
 
+    @After
+    // Удалим созданные данные
+    public void tearDown() {
+        // отменим созданный заказ
+        RequestsTemplates.putRequest("/api/v1/orders/cancel", "{\"track\":" + track + "}");
+        // удалим пользователя
+        if (courierId != 0)
+            RequestsTemplates.deleteRequest("/api/v1/courier/" + courierId);
+    }
+
     @Test
     @DisplayName("Получить заказ по его номеру")
-    public void getOrder() {
-        RequestsTemplates.getRequest("/api/v1/orders/track?t=" + track)
-                .then()
-                .statusCode(200);
-        // TODO: Добавить проверку объекта
+    public void checkGetOrderObject() {
+        JSONOrder order = RequestsTemplates.getRequest("/api/v1/orders/track?t=" + track)
+                .body().as(JSONOrder.class);
+
+        assertNotNull(order);
     }
 
     @Test
@@ -74,15 +72,4 @@ public class GetOrderTests {
                 .statusCode(404)
                 .and().body("message", equalTo("Заказ не найден"));
     }
-
-    @After
-    // Удалим созданные данные
-    public void tearDown(){
-        // отменим созданный заказ
-        RequestsTemplates.putRequest("/api/v1/orders/cancel", "{\"track\":" + track + "}");
-        // удалим пользователя
-        if (courierId != 0)
-            RequestsTemplates.deleteRequest("/api/v1/courier/" + courierId, "{}");
-    }
-
 }

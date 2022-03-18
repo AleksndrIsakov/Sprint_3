@@ -39,23 +39,12 @@ public class CreateOrderTests {
     }
 
     @Test
-    @DisplayName("Создание заказа")
+    @DisplayName("Создание заказа:")
     public void createOrder() {
-        String jsonBody = "{\n" +
-                "    \"firstName\": \"Naruto\",\n" +
-                "    \"lastName\": \"Uchiha\",\n" +
-                "    \"address\": \"Konoha, 142 apt.\",\n" +
-                "    \"metroStation\": 4,\n" +
-                "    \"phone\": \"+7 800 355 35 35\",\n" +
-                "    \"rentTime\": 5,\n" +
-                "    \"deliveryDate\": \"2020-06-06\",\n" +
-                "    \"comment\": \"Saske, come back to Konoha\",\n" +
-                "    \"color\": [\n" +
-                "        " + color + "\n" +
-                "    ]\n" +
-                "}";
+        ScooterOrder order = new ScooterOrder();
+        order.setColor(color);
 
-        RequestsTemplates.postRequest(apiUrl, jsonBody)
+        RequestsTemplates.postRequest(apiUrl, order.getJsonOrderBody())
                 .then().statusCode(201)
                 .and()
                 .body("track", isA(int.class));

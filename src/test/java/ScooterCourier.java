@@ -1,5 +1,6 @@
 // импортируем RestAssured
 // импортируем Response
+
 import io.restassured.response.Response;
 // импортируем библиотеку генерации строк
 import org.apache.commons.lang3.RandomStringUtils;
@@ -8,14 +9,15 @@ import java.util.ArrayList;
 // дополнительный статический импорт нужен, чтобы использовать given(), get() и then()
 import static io.restassured.RestAssured.*;
 
-public class ScooterRegisterCourier {
+// Вспомогательный класс для создания курьера
+public class ScooterCourier {
 
     /*
     метод регистрации нового курьера
     возвращает список из логина и пароля
     если регистрация не удалась, возвращает пустой список
     */
-    public static ArrayList<String> registerNewCourierAndReturnLoginPassword(){
+    public static ArrayList<String> registerNewCourierAndReturnLoginPassword() {
 
         // с помощью библиотеки RandomStringUtils генерируем логин
         // метод randomAlphabetic генерирует строку, состоящую только из букв, в качестве параметра передаём длину строки
@@ -34,7 +36,7 @@ public class ScooterRegisterCourier {
                 + "\"firstName\":\"" + courierFirstName + "\"}";
 
         // отправляем запрос на регистрацию курьера и сохраняем ответ в переменную response класса Response
-        Response response =  given()
+        Response response = given()
                 .header("Content-type", "application/json")
                 .and()
                 .body(registerRequestBody)
@@ -50,6 +52,13 @@ public class ScooterRegisterCourier {
         // возвращаем список
         return loginPass;
 
+    }
+
+    public static int getId(String login, String password) throws NullPointerException {
+        String jsonBody = "{\"login\":\"" + login + "\","
+                + "\"password\":\"" + password + "\"}";
+
+        return RequestsTemplates.postRequest("/api/v1/courier/login", jsonBody).getBody().jsonPath().get("id");
     }
 
 } 
