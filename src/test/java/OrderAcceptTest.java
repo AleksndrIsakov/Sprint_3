@@ -4,6 +4,7 @@ import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.ValidatableResponse;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -87,6 +88,7 @@ public class OrderAcceptTest {
         assertThat("отличается сообщение в ответе", message, equalTo("Курьера с таким id не существует"));
     }
 
+    @Ignore
     @Test
     @DisplayName("Не передан номер заказа")
     public void checkOrderWithoutNumber() {

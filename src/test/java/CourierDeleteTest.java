@@ -4,6 +4,7 @@ import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.ValidatableResponse;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.apache.http.HttpStatus.*;
@@ -49,6 +50,7 @@ public class CourierDeleteTest {
         courierId = 0;
     }
 
+    @Ignore
     @Test
     @DisplayName("Запрос без id возвращает ошибку")
     public void deleteCourierWithoutId() {
@@ -61,6 +63,7 @@ public class CourierDeleteTest {
         assertThat("отличается сообщение в ответе", message, equalTo("Недостаточно данных для удаления курьера"));
     }
 
+    @Ignore
     @Test
     @DisplayName("Запрос с несуществующим id возвращает ошибку")
     public void deleteCourierWithNotExistId() {

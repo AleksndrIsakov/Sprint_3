@@ -4,6 +4,7 @@ import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.ValidatableResponse;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.apache.http.HttpStatus.*;
@@ -45,6 +46,7 @@ public class CourierCreateTest {
         assertThat("отличается сообщение в ответе", ok, equalTo(true));
     }
 
+    @Ignore
     @Test
     @DisplayName("Проверка запрета на создание повторной записи")
     public void courierCantCreateDuplicate() {
@@ -89,6 +91,7 @@ public class CourierCreateTest {
         assertThat("отличается сообщение в ответе", message, equalTo("Недостаточно данных для создания учетной записи"));
     }
 
+    @Ignore
     @Test
     @DisplayName("Проверка обработки запроса с пустым firstName")
     public void courierCantCreateWithoutFirstName() {
